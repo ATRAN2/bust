@@ -1,0 +1,4 @@
+def laser():
+	return 'taser'
+
+
