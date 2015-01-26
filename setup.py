@@ -14,6 +14,7 @@ setup(name = 'bust',
 		install_requires = [
 			'Flask',
 			'requests',
+			'lxml',
 		],
 		entry_points = {
 			'console_scripts': [
