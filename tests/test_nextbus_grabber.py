@@ -6,10 +6,15 @@ class NextbusDatastoreTest(unittest.TestCase):
         self.nextbus_datastore = nextbus_grabber.NextbusDatastoreFactory.generate_datastore()
 
     def test_agency_list_generation(self):
-        test_agency_tags = ['actransit', 'jta', 'unitrans']
-        for agency_tag in test_agency_tags:
-            self.assertTrue(agency_tag in self.nextbus_datastore.agency_tags,
-                '{0} not in {1}'.format(agency_tag, self.nextbus_datastore.agency_tags))
+        test_agencies = {
+                'actransit' : 'AC Transit',
+                'glendale' : 'Glendale Beeline',
+                'unitrans' : 'Unitrans ASUCD/City of Davis',
+                }
+        for agency_tag, agency_title in test_agencies.iteritems():
+            self.assertTrue(self.nextbus_datastore.agencies[agency_tag] == agency_title,
+                '{{{0} : {1}}}not in {2}'.format(
+                    agency_tag, agency_title, self.nextbus_datastore.agencies))
 
     def test_route_list_generation(self):
         test_routes = {
@@ -22,7 +27,6 @@ class NextbusDatastoreTest(unittest.TestCase):
                 '{0} not in {1}'.format(route, self.nextbus_datastore.routes[agency]))
 
     def test_stop_list_generation(self):
-        # TODO
         pass
 
 class NextbusRequesterTest(unittest.TestCase):
