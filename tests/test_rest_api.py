@@ -7,3 +7,6 @@ class RestAPITest(unittest.TestCase):
         app = main.app.test_client()
         response = app.get('/api')
         self.assertIn('This is the api home.', response.data)
+
+if __name__ == '__main__':
+    unittest.main()
