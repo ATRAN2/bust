@@ -1,16 +1,16 @@
 import unittest
-from bust import rtreer
+from bust import rtree_wrapper as rtree
 
 class RTreeTest(unittest.TestCase):
     def test_add_object_at_coords(self):
-        test_rtree = rtreer.RTree()
+        test_rtree = rtree.RTree()
         test_object = {'test' : 'object'}
         test_rtree.add_object_at_coords(test_object, (0.5, 0.5))
         self.assertTrue(
             test_object in test_rtree.search_in_range((0.25, 0.25, 0.75, 0.75)))
 
     def test_search_n_size_square_around_point(self):
-        test_rtree = rtreer.RTree()
+        test_rtree = rtree.RTree()
         test_objects_coords = [
             [{'test1' : 'object1'}, (1, 1)],
             [{'test2' : 'object2'}, (-1, -1)],
