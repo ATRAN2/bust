@@ -1,6 +1,7 @@
 import unittest
 from bust import nextbus_grabber
 
+@unittest.skip('Takes a while')
 class NextbusDatastoreTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -22,8 +23,8 @@ class NextbusDatastoreTest(unittest.TestCase):
         self.assertTrue(test_stop in search)
 
 # NextbusDatastorePopulatorTest takes some time to run as
-# i must query the Nextbus API a lot.
-@unittest.skip('poop')
+# it must query the Nextbus API a lot.
+@unittest.skip('Takes a long time')
 class NextbusDatastorePopulatorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -92,9 +93,6 @@ class NextbusDatastorePopulatorTest(unittest.TestCase):
             }
         search = location_rtree.search_in_range((37.8715, -122.269, 37.8725, -122.268))
         self.assertTrue(test_stop in search)
-
-
-
 
 class NextbusRequesterTest(unittest.TestCase):
     @classmethod

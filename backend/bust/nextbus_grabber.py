@@ -128,8 +128,6 @@ class NextbusDatastorePopulator(object):
             self.get_agencies()
             self.get_routes()
             self.get_stops()
-            with open('stops_check', 'w') as fout:
-                pprint.pprint(self.stops, stream=fout)
 
     def get_agencies(self):
         agencies_xml = self.nextbus_requester.get_agencies()
@@ -183,7 +181,6 @@ class NextbusDatastorePopulator(object):
         for row_index in range(len(stop_tags)):
             row_stop_data = self.wrap_row_stop_data_in_dict(attribute_values_list, row_index)
             new_entry_location.update({stop_tags[row_index] : row_stop_data})
-            # self.add_row_data_to_locations(agency, row_stop_data)
 
     def wrap_row_stop_data_in_dict(self, attribute_values_lists, row_index):
         row_stop_data = []
@@ -192,21 +189,6 @@ class NextbusDatastorePopulator(object):
             value = attribute_values_list[1][row_index]
             row_stop_data.append([attribute, value])
         return dict(row_stop_data)
-
-    def add_row_data_to_locations(self, agency, row_stop_data):
-        lat_lon_key = (
-                float(row_stop_data['lat']),
-                float(row_stop_data['lon'])
-        )
-        data_value = {
-                'agency_tag' : agency,
-                'agency_title' : self.agencies[agency],
-                'street_title' : row_stop_data['title'],
-                'lat' : row_stop_data['lat'],
-                'lon' : row_stop_data['lon'],
-                'stop_id' : row_stop_data['stopId'],
-        }
-        self.locations[lat_lon_key] = data_value
 
     def get_attribute_values_from_xml(self, xml, tag_attributes, parsing_root=[], attributes_filter={} ):
         xml_extractor = xml_values_extractor.XMLAttributesValuesExtractor(xml, tag_attributes)

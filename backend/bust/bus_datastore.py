@@ -8,7 +8,7 @@ class BusDatastore(object):
     def __init__(self):
         self.stops = None
         self.location_rtree = None
-        self.FILE_ROOT = './bust/bus_data/'
+        self.file_root = ''
         self.set_filename('bus.data')
     
     @abstractmethod
@@ -23,7 +23,11 @@ class BusDatastore(object):
     def load_data_from_disk(self):
         pass
 
+    def set_file_root(self, file_root):
+        self.file_root = file_root
+        self.set_filename(self.filename)
+
     def set_filename(self, filename):
-        self.file_path = self.FILE_ROOT + filename
+        self.file_path = self.file_root + filename
 
 
