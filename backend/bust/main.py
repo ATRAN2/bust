@@ -36,6 +36,7 @@ def radius_search():
     if not message:
         message = {'error' : 'No buses found within 50 miles of location'}
     response = jsonify(message)
+    response.headers['Access-Control-Allow-Origin'] = '*'
     response.status_code = 200
     return response
 

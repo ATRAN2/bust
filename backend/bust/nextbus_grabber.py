@@ -160,6 +160,9 @@ class NextbusDatastorePopulator(object):
                 route_stops = self.get_attribute_values_from_xml(
                         route_stops_xml, tag_attributes, xml_parsing_root)
                 self.add_stop_data_for_agency_route(route_stops, agency, route)
+                direction_data = xml_values_extractor.NextbusXMLExtractor \
+                        .get_stop_direction_data(route_stops_xml)
+                self.add_direction_data_for_agency_route(direction_data, agency, route)
 
     def prepare_stops_dict(self):
         agency_tags = self.agencies.keys()
@@ -182,13 +185,25 @@ class NextbusDatastorePopulator(object):
             row_stop_data = self.wrap_row_stop_data_in_dict(attribute_values_list, row_index)
             new_entry_location.update({stop_tags[row_index] : row_stop_data})
 
+    def add_direction_data_for_agency_route(self, direction_data, agency, route):
+        for stop, direction_tags in direction_data.iteritems():
+            entry_location = self.stops[agency]['route'][route][stop]
+            for direction_tag, value in direction_tags.iteritems():
+                entry_location.update({direction_tag : value})
+
     def wrap_row_stop_data_in_dict(self, attribute_values_lists, row_index):
         row_stop_data = []
         for attribute_values_list in attribute_values_lists:
             attribute = attribute_values_list[0]
             value = attribute_values_list[1][row_index]
             row_stop_data.append([attribute, value])
+        self.append_direction_data_placeholder(row_stop_data)
         return dict(row_stop_data)
+
+    def append_direction_data_placeholder(self, row_stop_data):
+        row_stop_data.append(['direction_name', None])
+        row_stop_data.append(['direction', None])
+
 
     def get_attribute_values_from_xml(self, xml, tag_attributes, parsing_root=[], attributes_filter={} ):
         xml_extractor = xml_values_extractor.XMLAttributesValuesExtractor(xml, tag_attributes)

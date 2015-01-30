@@ -20,9 +20,9 @@ class APIResponseCreator(object):
     def format_radius_search_results(self, radius_search_results):
         formatted_results = {}
         for result in radius_search_results:
-            if 'stop_id' in result:
-                stop_id = result.pop('stop_id')
-                formatted_results[stop_id] = result
+            if 'stop_tag' in result:
+                stop_tag = result.pop('stop_tag')
+                formatted_results[stop_tag] = result
             else:
                 formatted_results['N/A'] = result
         return formatted_results

@@ -52,3 +52,30 @@ class XMLAttributesValuesExtractor(object):
                 element_has_filter_attributes = False
                 break
         return element_has_filter_attributes
+
+class NextbusXMLExtractor(XMLAttributesValuesExtractor):
+    @classmethod
+    def get_stop_direction_data(cls, stop_xml):
+        directions_tree = etree.XML(stop_xml)
+        directions = cls.find_elements_in_xml_tree_with_tag(directions_tree, 'direction')
+        direction_data = {}
+        for direction_element in directions:
+            title_tag = direction_element.attrib['title']
+            name_tag = direction_element.attrib['name']
+            stop_tags = cls.get_direction_stop_tags(direction_element)
+            for stop_tag in stop_tags:
+                direction_data[stop_tag] = \
+                    {'direction' : title_tag, 'direction_name' : name_tag}
+        return direction_data
+
+    @classmethod
+    def get_direction_stop_tags(self, direction_element):
+        stop_tags = []
+        for stop in direction_element.iterchildren():
+            stop_tags.append(stop.attrib['tag'])
+        return stop_tags
+
+    @classmethod
+    def find_elements_in_xml_tree_with_tag(self, xml_tree, tag):
+        return xml_tree.iter(tag)
+

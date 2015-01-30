@@ -15,7 +15,7 @@ setup(name = 'bust',
         'Flask',
         'requests',
         'lxml',
-		'mock',
+		'rtree'
     ],
     entry_points = {
         'console_scripts': [

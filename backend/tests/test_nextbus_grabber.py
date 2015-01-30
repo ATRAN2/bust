@@ -1,7 +1,9 @@
 import unittest
 from bust import nextbus_grabber
 
-@unittest.skip('Takes a while')
+# Will be slow the first time since it has to query
+# the Nextbus API.  Afterwards it'll load results from
+# disk which is a lot faster.
 class NextbusDatastoreTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -17,6 +19,8 @@ class NextbusDatastoreTest(unittest.TestCase):
             'agency_tag' : 'actransit',
             'lat' : '37.8721999',
             'lon' : '-122.2687799',
+            'direction' : 'To Berkeley Marina',
+            'direction_name' : 'North',
             }
         search = self.nextbus_datastore \
             .find_stops_near_lat_lon(37.8721999, -122.2687799)
@@ -24,7 +28,7 @@ class NextbusDatastoreTest(unittest.TestCase):
 
 # NextbusDatastorePopulatorTest takes some time to run as
 # it must query the Nextbus API a lot.
-@unittest.skip('Takes a long time')
+@unittest.skip('Takes too long.')
 class NextbusDatastorePopulatorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -64,7 +68,9 @@ class NextbusDatastorePopulatorTest(unittest.TestCase):
                             'title' : 'Durant Av & Telegraph Av',
                             'lat' : '37.8677199',
                             'lon' : '-122.2592',
-                            'stopId' : '55556'
+                            'stopId' : '55556',
+                            'direction' : 'To Rockridge BART',
+                            'direction_name' : 'South',
                         }
                     }
                 }
@@ -90,6 +96,8 @@ class NextbusDatastorePopulatorTest(unittest.TestCase):
             'agency_tag' : 'actransit',
             'lat' : '37.8721999',
             'lon' : '-122.2687799',
+            'direction' : 'To Berkeley Marina',
+            'direction_name' : 'North'
             }
         search = location_rtree.search_in_range((37.8715, -122.269, 37.8725, -122.268))
         self.assertTrue(test_stop in search)

@@ -41,5 +41,17 @@ class XMLAttributesValuesExtractorTest(unittest.TestCase):
         self.assertIn('University Av & Shattuck Av', extracted_values['title'])
         self.assertEqual(1, len(extracted_values['tag']))
 
+class NextbusXMLExtractorTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        nextbus_xmls = nextbus_grabber.NextbusRequester()
+        cls.test_xml = nextbus_xmls.get_route_stops('actransit', '51B')
+
+    def test_get_stop_direction_data(self):
+        stop_direction_data = \
+            xml_extractor.NextbusXMLExtractor.get_stop_direction_data(self.test_xml)
+        self.assertEqual('North', stop_direction_data['0306650']['direction_name'])
+        self.assertEqual('To Berkeley Marina', stop_direction_data['0306650']['direction'])
+
 if __name__ == '__main__':
     unittest.main()
