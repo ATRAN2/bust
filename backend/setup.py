@@ -15,7 +15,8 @@ setup(name = 'bust',
         'Flask',
         'requests',
         'lxml',
-		'rtree'
+		'rtree',
+		'flask-cors'
     ],
     entry_points = {
         'console_scripts': [

@@ -1,11 +1,11 @@
 import unittest
-from bust import rtree_wrapper as rtree
+from bust.utils import rtree_wrapper as rtree
 
 class RTreeTest(unittest.TestCase):
-    def test_add_object_at_coords(self):
+    def test_add_object_at_coord(self):
         test_rtree = rtree.RTree()
         test_object = {'test' : 'object'}
-        test_rtree.add_object_at_coords(test_object, (0.5, 0.5))
+        test_rtree.add_object_at_coord(test_object, (0.5, 0.5))
         self.assertTrue(
             test_object in test_rtree.search_in_range((0.25, 0.25, 0.75, 0.75)))
 
@@ -17,8 +17,8 @@ class RTreeTest(unittest.TestCase):
             [{'test3' : 'object3'}, (9, 6)],
             ]
         for test_item in test_objects_coords:
-            test_rtree.add_object_at_coords(test_item[0], test_item[1])
-        square_search = test_rtree.search_n_radius_square_around_coords(5, (5, 5))
+            test_rtree.add_object_at_coord(test_item[0], test_item[1])
+        square_search = test_rtree.search_n_radius_square_around_coord(5, (5, 5))
         self.assertTrue(test_objects_coords[0][0] in square_search)
         self.assertFalse(test_objects_coords[1][0] in square_search)
         self.assertTrue(test_objects_coords[2][0] in square_search)
