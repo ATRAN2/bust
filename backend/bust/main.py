@@ -18,8 +18,8 @@ def api_root():
 @app.route('/api/radius-search')
 def radius_search():
     target_args = ['lat', 'lon']
-    _validate_float_args(request.args, target_args)
-    lat, lon = _get_arg_values(request.args, target_args)
+    validate_float_args(request.args, target_args)
+    lat, lon = get_arg_values(request.args, target_args)
     lat = float(lat)
     lon = float(lon)
     message = response_creator.get_radius_search(lat, lon)
@@ -37,8 +37,8 @@ def agencies():
 @app.route('/api/agency-routes')
 def agency_routes():
     target_args = ['atag']
-    _validate_args(request.args, target_args)
-    agency_tag = _get_arg_values(request.args, target_args)
+    validate_args(request.args, target_args)
+    agency_tag = get_arg_values(request.args, target_args)
     message = response_creator.get_agency_routes(agency_tag)
     response = jsonify(message)
     response.status_code = 200
@@ -60,8 +60,8 @@ def handle_validation_error(error):
     response.status_code = error.status_code
     return response
 
-def _validate_float_args(request_args, endpoint_params):
-    _validate_args(request_args, endpoint_params)
+def validate_float_args(request_args, endpoint_params):
+    validate_args(request_args, endpoint_params)
     try:
         for param in endpoint_params:
             float(request_args[param])
@@ -69,7 +69,7 @@ def _validate_float_args(request_args, endpoint_params):
         message = 'Bad Request: {0} is not a valid parameter value'.format(e)
         raise ValidationError(message)
 
-def _validate_args(request_args, endpoint_params):
+def validate_args(request_args, endpoint_params):
     try:
         for param in endpoint_params:
             request_args[param]
@@ -77,7 +77,7 @@ def _validate_args(request_args, endpoint_params):
         message = 'Bad Request: Request does not contain the {0} parameter'.format(e.message)
         raise ValidationError(message)
 
-def _get_arg_values(request_args, target_args):
+def get_arg_values(request_args, target_args):
     if len(target_args) == 1:
         return request_args[target_args[0]]
     arg_values = []
