@@ -52,34 +52,34 @@ class XMLAttributesValuesExtractor(object):
                 break
         return element_has_filter_attributes
 
-class NextBusXMLExtractor(object):
+class NextBusDirectionsExtractor(object):
     @classmethod
     def get_stop_direction_data(cls, stop_xml):
         directions_tree = etree.XML(stop_xml)
-        directions = cls.find_elements_in_xml_tree_with_tag(
+        directions = cls._find_elements_in_xml_tree_with_tag(
                 directions_tree, 'direction')
         direction_data = {}
         for direction_element in directions:
-            cls.put_element_data_into_direction_data(direction_element, direction_data)
+            cls._put_element_data_into_direction_data(direction_element, direction_data)
         return direction_data
 
     @classmethod
-    def put_element_data_into_direction_data(cls, direction_element, direction_data):
+    def _put_element_data_into_direction_data(cls, direction_element, direction_data):
         title_tag = direction_element.attrib['title']
         name_tag = direction_element.attrib['name']
-        stop_tags = cls.get_direction_stop_tags(direction_element)
+        stop_tags = cls._get_direction_stop_tags(direction_element)
         for stop_tag in stop_tags:
             direction_data[stop_tag] = \
                 {'direction' : title_tag, 'direction_name' : name_tag}
 
     @classmethod
-    def get_direction_stop_tags(cls, direction_element):
+    def _get_direction_stop_tags(cls, direction_element):
         stop_tags = []
         for stop in direction_element.iterchildren():
             stop_tags.append(stop.attrib['tag'])
         return stop_tags
 
     @classmethod
-    def find_elements_in_xml_tree_with_tag(cls, xml_tree, tag):
+    def _find_elements_in_xml_tree_with_tag(cls, xml_tree, tag):
         return xml_tree.iter(tag)
 

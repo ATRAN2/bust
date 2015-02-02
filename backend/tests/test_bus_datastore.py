@@ -1,5 +1,5 @@
 import unittest
-from bust import bus_datastore
+from bust import bus_datastore, constants
 
 # Will be slow the first time since it has to query
 # the NextBus API.  Afterwards it'll load results from
@@ -21,10 +21,13 @@ class NextBusDatastoreTest(unittest.TestCase):
             'lon' : '-122.2687799',
             'direction' : 'To Berkeley Marina',
             'direction_name' : 'North',
-            }
-        search = self.nextbus_datastore \
+        }
+        search_result, distance = self.nextbus_datastore \
             .find_stops_near_lat_lon(37.8721999, -122.2687799)
-        self.assertTrue(test_stop in search)
+        self.assertTrue(test_stop in search_result)
+        self.assertTrue(distance >= constants.MIN_SEARCH_DISTANCE)
+        self.assertTrue(distance <= constants.MAX_SEARCH_DISTANCE)
+
 
 if __name__ == '__main__':
     unittest.main()

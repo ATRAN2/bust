@@ -3,58 +3,50 @@ import os
 import time
 from bust.utils import rtree_wrapper as rtree
 from bust.utils import xml_extractor as xml_values_extractor
+from bust import config
 
 class NextBusDatastorePopulator(object):
-    def __init__(self, datastore, saved_stops={}, saved_flat_index=[]):
+    def __init__(self, datastore):
         self._datastore = datastore
+        self._nextbus_client = NextBusClient()
         self._agencies = {}
         self._routes = {}
-        self._stops = saved_stops
+        self._stops = {}
         self._locations = []
-        self._flat_index = saved_flat_index
         self._location_index = None
 
-    def populate_datastore(self):
-        if self._stops and self._flat_index:
-            self._create_location_index_from_flat_index()
-            self._datastore.location_index = self._location_index
-        else:
-            self._get_nextbus_data()
-            self._datastore.stops = self._stops
-            self._datastore.flat_index = self._flat_index
-            self._datastore.location_index = self._location_index
+    def populate_from_web(self):
+        self._get_nextbus_data()
+        self._datastore.stops = self._stops
+        self._datastore.location_index = self._location_index
+
+    def populate_from_file(self):
+        self._datastore.load_data()
+        self._stops = self._datastore.stops
+        self._parse_stops_data_into_location_index()
+        self._datastore.location_index = self._location_index
 
     def _get_nextbus_data(self):
         self._get_agencies()
         self._get_routes()
         self._get_stops()
-        self._parse_stops_data_into_flat_index()
-        self._create_location_index_from_flat_index()
+        self._parse_stops_data_into_location_index()
 
     def _get_agencies(self):
-        nextbus_client = NextBusClient()
-        self._agencies = nextbus_client.get_agencies()
+        self._agencies = self._nextbus_client.get_agencies()
 
     def _get_routes(self):
-        nextbus_client = NextBusClient()
-        self._routes = nextbus_client.get_routes_for_agencies(self._agencies)
+        self._routes = self._nextbus_client.get_routes_for_agencies(self._agencies)
 
     def _get_stops(self):
-        nextbus_client = NextBusClient()
-        self._stops = nextbus_client.get_stops_for_agencies_routes(self._agencies, self._routes)
+        self._stops = self._nextbus_client.get_stops_for_agencies_routes(self._agencies, self._routes)
 
-    def _parse_stops_data_into_flat_index(self):
+    def _parse_stops_data_into_location_index(self):
+        self._location_index = rtree.RTree()
         self._collect_stops_entries_into_locations()
         for location in self._locations:
             lat_lon_coord, location_data = self._format_location_entry(location)
-            self._flat_index.append([lat_lon_coord, location_data])
-
-    def _create_location_index_from_flat_index(self):
-        self._location_index = rtree.RTree()
-        for entry in self._flat_index:
-            location_coord = entry[0]
-            location_data = entry[1]
-            self._location_index.add_object_at_coord(location_data, location_coord)
+            self._location_index.add_object_at_coord(location_data, lat_lon_coord)
 
     def _collect_stops_entries_into_locations(self):
         self._traverse_stops_data(self._stops, [])
@@ -100,31 +92,33 @@ class NextBusClient(object):
     NEXTBUS_API_ROOT = 'http://webservices.nextbus.com/service/publicXMLFeed'
 
     def __init__(self):
-        self.result = {}
+        self.stops = {}
 
     def get_agencies(self):
         agencies_xml = self._query_agencies()
         tag_attributes = {'agency' : ['tag', 'title']}
-        california_filter = {'regionTitle' : 'California'}
+        agency_filter = {'regionTitle' : config.AGENCY_REGION}
         extracted_agencies = self._get_attribute_values_from_xml(
-                agencies_xml, tag_attributes, attributes_filter=california_filter)
+                agencies_xml, tag_attributes, attributes_filter=agency_filter)
         agency_tags = extracted_agencies['tag']
         agency_titles = extracted_agencies['title']
-        self.result = dict(zip(agency_tags, agency_titles))
-        return self.result
+        agencies = dict(zip(agency_tags, agency_titles))
+        return agencies
 
     def get_routes_for_agencies(self, agencies):
+        routes = {}
         agency_tags = agencies.keys()
         tag_attributes = {'route' : ['tag']}
         for agency in agency_tags:
             agency_routes_xml = self._query_route_list_from_agency(agency)
             agency_routes = self._get_attribute_values_from_xml(
                     agency_routes_xml, tag_attributes)
-            self.result[agency] = agency_routes['tag']
-        return self.result
+            routes[agency] = agency_routes['tag']
+        return routes
 
     def get_stops_for_agencies_routes(self, agencies, routes):
-        self._prepare_stops_dict(agencies)
+        self.stops = {}
+        self._prepare_stops_map(agencies)
         tag_attributes = {'stop' : ['tag', 'title', 'lat', 'lon', 'stopId']}
         xml_parsing_root = [0]
         agencies = routes.keys()
@@ -135,10 +129,10 @@ class NextBusClient(object):
                 route_stops = self._get_attribute_values_from_xml(
                         route_stops_xml, tag_attributes, xml_parsing_root)
                 self._add_stop_data_for_agency_route(route_stops, agency, route)
-                direction_data = xml_values_extractor.NextBusXMLExtractor \
+                direction_data = xml_values_extractor.NextBusDirectionsExtractor\
                         .get_stop_direction_data(route_stops_xml)
                 self._add_direction_data_for_agency_route(direction_data, agency, route)
-        return self.result
+        return self.stops
 
     def _query_agencies(self):
         api_params = {'command' : 'agencyList'}
@@ -169,18 +163,18 @@ class NextBusClient(object):
         api_url = api_url[:-1]
         return api_url
 
-    def _prepare_stops_dict(self, agencies):
+    def _prepare_stops_map(self, agencies):
         agency_tags = agencies.keys()
         for agency in agency_tags:
-            self.result[agency] = {
+            self.stops[agency] = {
                 'agency_title' : agencies[agency],
                 'route' : {},
             }
 
     def _add_stop_data_for_agency_route(self, route_stops, agency, route):
         attribute_values_collection = []
-        self.result[agency]['route'][route] = {}
-        new_entry_location = self.result[agency]['route'][route]
+        self.stops[agency]['route'][route] = {}
+        new_entry_location = self.stops[agency]['route'][route]
         for attribute, values in route_stops.iteritems():
             if attribute is 'tag':
                 stop_tags = values
@@ -206,11 +200,13 @@ class NextBusClient(object):
 
     def _add_direction_data_for_agency_route(self, direction_data, agency, route):
         for stop, direction_tags in direction_data.iteritems():
-            entry_location = self.result[agency]['route'][route][stop]
+            entry_location = self.stops[agency]['route'][route][stop]
             for direction_tag, value in direction_tags.iteritems():
                 entry_location.update({direction_tag : value})
 
-    def _get_attribute_values_from_xml(self, xml, tag_attributes, parsing_root=[], attributes_filter={} ):
+    def _get_attribute_values_from_xml(self, xml, tag_attributes, parsing_root=None, attributes_filter=None):
+        parsing_root = parsing_root or []
+        attributes_filter = attributes_filter or {}
         xml_extractor = xml_values_extractor.XMLAttributesValuesExtractor(xml, tag_attributes)
         xml_extractor.set_attributes_filter(attributes_filter)
         xml_extractor.set_parsing_root(parsing_root)

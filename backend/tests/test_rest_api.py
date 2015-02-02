@@ -24,6 +24,8 @@ class RestAPITest(unittest.TestCase):
     def test_radius_search(self):
         response = self.app.get('/api/radius-search?lat=37.8721999&lon=-122.2687799')
         self.assertIn('University Av & Shattuck Av', response.data)
+        response = self.app.get('/api/radius-search?lat=37.8721999&lon=-122.2687799&distance=0.125')
+        self.assertIn('University Av & Shattuck Av', response.data)
         self.check_response_status_code(response, 200)
         self.check_response_mimetype_is_json(response)
 

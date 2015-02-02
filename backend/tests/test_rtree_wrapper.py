@@ -18,7 +18,7 @@ class RTreeTest(unittest.TestCase):
             ]
         for test_item in test_objects_coords:
             test_rtree.add_object_at_coord(test_item[0], test_item[1])
-        square_search = test_rtree.search_n_radius_square_around_coord(5, (5, 5))
+        square_search = test_rtree.search_n_size_square_around_coord(5, (5, 5))
         self.assertTrue(test_objects_coords[0][0] in square_search)
         self.assertFalse(test_objects_coords[1][0] in square_search)
         self.assertTrue(test_objects_coords[2][0] in square_search)

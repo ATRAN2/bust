@@ -3,7 +3,6 @@ from bust import nextbus_grabber, bus_datastore
 
 # NextBusDatastorePopulatorTest takes some time to run as
 # it must query the NextBus API a lot.
-@unittest.skip("poop")
 class NextBusDatastorePopulatorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -12,8 +11,7 @@ class NextBusDatastorePopulatorTest(unittest.TestCase):
         cls.datastore_populator._get_agencies()
         cls.datastore_populator._get_routes()
         cls.datastore_populator._get_stops()
-        cls.datastore_populator._parse_stops_data_into_flat_index()
-        cls.datastore_populator._create_location_index_from_flat_index()
+        cls.datastore_populator._parse_stops_data_into_location_index()
 
     def test_get_agencies(self):
         test_agencies = {
@@ -66,7 +64,7 @@ class NextBusDatastorePopulatorTest(unittest.TestCase):
                 datastore_stops['actransit']['agency_title'],
         )
 
-    def test_parse_stops_data_into_flat_index(self):
+    def test_parse_stops_data_into_location_index(self):
         test_location = {
             'stop_id' : '50444',
             'route_tag' : '51B',
@@ -78,27 +76,7 @@ class NextBusDatastorePopulatorTest(unittest.TestCase):
             'lon' : '-122.2687799',
             'direction' : 'To Berkeley Marina',
             'direction_name' : 'North'
-            }
-        flat_index = self.datastore_populator._flat_index
-        test_location_found = False
-        for entry in flat_index:
-            if test_location in entry:
-                test_location_found = True
-        self.assertTrue(test_location_found)
-
-    def test_create_location_index_from_flat_index(self):
-        test_location = {
-            'stop_id' : '50444',
-            'route_tag' : '51B',
-            'stop_tag' : '0306650',
-            'street_title' : 'University Av & Shattuck Av',
-            'agency_title' : 'AC Transit',
-            'agency_tag' : 'actransit',
-            'lat' : '37.8721999',
-            'lon' : '-122.2687799',
-            'direction' : 'To Berkeley Marina',
-            'direction_name' : 'North'
-            }
+        }
         location_index = self.datastore_populator._location_index
         search = location_index.search_in_range((37.8715, -122.269, 37.8725, -122.268))
         self.assertTrue(test_location in search)
