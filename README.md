@@ -1,6 +1,6 @@
 # Bust
 
-**This app was created in correspondence to the [Uber Coding Challenge](https://github.com/uber/coding-challenge-tools/blob/master/coding_challenge.md)**
+**This app was created as a response to the [Uber Coding Challenge](https://github.com/uber/coding-challenge-tools/blob/master/coding_challenge.md)**
 
 The goal of Bust is to have a quick and efficient way to get bus arrival predictions.  When searching through a site like www.nextbus.com, a user needs to dig through a list of agencies, a list of routes, then find the specific stop they're looking for.  Much of that information is extraneous for the user.  Most of the time a user is nearby wondering if they should start walking to the stop or not.  Rather than having to search through huge dropdown lists to find a stop, Bust serves to reduce the hassle by asking for the user's location then returning just the nearby stops.
 
