@@ -1,9 +1,8 @@
 import unittest
+
 from bust import bus_datastore, constants
 
-# Will be slow the first time since it has to query
-# the NextBus API.  Afterwards it'll load results from
-# disk which is a lot faster.
+
 class NextBusDatastoreTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

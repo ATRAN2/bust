@@ -1,6 +1,7 @@
-import os
 import unittest
-from bust.utils.pickle_wrapper import Serializer
+
+from bust.utils.serializer import Serializer
+
 
 class SerializerTest(unittest.TestCase):
     @classmethod

@@ -1,8 +1,9 @@
 import unittest
-from bust import nextbus_grabber, bus_datastore
 
-# NextBusDatastorePopulatorTest takes some time to run as
-# it must query the NextBus API a lot.
+from bust.components import nextbus_grabber, nextbus_client
+from bust import bus_datastore
+
+
 class NextBusDatastorePopulatorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -80,32 +81,6 @@ class NextBusDatastorePopulatorTest(unittest.TestCase):
         location_index = self.datastore_populator._location_index
         search = location_index.search_in_range((37.8715, -122.269, 37.8725, -122.268))
         self.assertTrue(test_location in search)
-
-class NextBusClientTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.nextbus_client = nextbus_grabber.NextBusClient()
-
-    def test_query_nextbus_agencies(self):
-        nextbus_agencies_xml = self.nextbus_client._query_agencies()
-        self.assertIn(
-                '<agency tag=',
-                nextbus_agencies_xml,
-        )
-
-    def test_query_route_list_from_agency(self):
-        actransit_routes_xml = self.nextbus_client._query_route_list_from_agency('actransit')
-        self.assertIn(
-                '<route tag="',
-                actransit_routes_xml,
-        )
-
-    def test_query_route_stops(self):
-        route_51b_xml = self.nextbus_client._query_route_stops('actransit', '51B')
-        self.assertIn(
-                '<stop tag="',
-                route_51b_xml,
-        )
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,10 +1,12 @@
 import unittest
-from bust import main, constants
+
+from bust import app, constants
+
 
 class RestAPITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = main.app.test_client()
+        cls.app = app.app.test_client()
         cls.json_mimetype = 'application/json'
 
     def test_api_home(self):
@@ -14,6 +16,7 @@ class RestAPITest(unittest.TestCase):
         self.assertIn(constants.RADIUS_SEARCH_URL, response.data)
         self.assertIn(constants.AGENCIES_URL, response.data)
         self.assertIn(constants.AGENCY_ROUTES_URL, response.data)
+        self.assertIn(constants.ROUTE_STOPS_URL, response.data)
 
     def test_404_page(self):
         response = self.app.get('/not_a_page')
@@ -38,6 +41,12 @@ class RestAPITest(unittest.TestCase):
     def test_agency_routes(self):
         response = self.app.get('/api/agency-routes?atag=actransit')
         self.assertIn('51B', response.data)
+        self.check_response_status_code(response, 200)
+        self.check_response_mimetype_is_json(response)
+
+    def test_route_stops(self):
+        response = self.app.get('/api/route-stops?atag=actransit&rtag=51B')
+        self.assertIn('0306080', response.data)
         self.check_response_status_code(response, 200)
         self.check_response_mimetype_is_json(response)
 

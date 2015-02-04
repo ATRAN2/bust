@@ -12,15 +12,16 @@ setup(name = 'bust',
     include_package_data = True,
     zip_safe = False,
     install_requires = [
-        'Flask',
-        'requests',
+        'flask-cors',
         'lxml',
-		'rtree',
-		'flask-cors'
+        'rtree',
+        'requests',
+        'Flask',
     ],
     entry_points = {
         'console_scripts': [
-            'bust-start = bust.main:main'
+            'bust-start = bust.app:run_app',
+			'bust-build = scripts.build_datastore:create_datastore_from_nextbus_to_file',
         ]
     }
 )

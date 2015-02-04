@@ -1,100 +1,24 @@
-import requests
-import os
 import time
-from bust.utils import rtree_wrapper as rtree
+
+import requests
+
 from bust.utils import xml_extractor as xml_values_extractor
 from bust import config
 
-class NextBusDatastorePopulator(object):
-    def __init__(self, datastore):
-        self._datastore = datastore
-        self._nextbus_client = NextBusClient()
-        self._agencies = {}
-        self._routes = {}
-        self._stops = {}
-        self._locations = []
-        self._location_index = None
-
-    def populate_from_web(self):
-        self._get_nextbus_data()
-        self._datastore.stops = self._stops
-        self._datastore.location_index = self._location_index
-
-    def populate_from_file(self):
-        self._datastore.load_data()
-        self._stops = self._datastore.stops
-        self._parse_stops_data_into_location_index()
-        self._datastore.location_index = self._location_index
-
-    def _get_nextbus_data(self):
-        self._get_agencies()
-        self._get_routes()
-        self._get_stops()
-        self._parse_stops_data_into_location_index()
-
-    def _get_agencies(self):
-        self._agencies = self._nextbus_client.get_agencies()
-
-    def _get_routes(self):
-        self._routes = self._nextbus_client.get_routes_for_agencies(self._agencies)
-
-    def _get_stops(self):
-        self._stops = self._nextbus_client.get_stops_for_agencies_routes(self._agencies, self._routes)
-
-    def _parse_stops_data_into_location_index(self):
-        self._location_index = rtree.RTree()
-        self._collect_stops_entries_into_locations()
-        for location in self._locations:
-            lat_lon_coord, location_data = self._format_location_entry(location)
-            self._location_index.add_object_at_coord(location_data, lat_lon_coord)
-
-    def _collect_stops_entries_into_locations(self):
-        self._traverse_stops_data(self._stops, [])
-
-    def _traverse_stops_data(self, traverse_map, entry_data):
-        if 'agency_title' in traverse_map:
-            agency_title = [['agency_title', traverse_map['agency_title']]]
-            self._traverse_stops_data(traverse_map['route'], entry_data + agency_title)
-            return
-        nested_map_location = None
-        for key, value in traverse_map.iteritems():
-            if isinstance(value, str):
-                entry_data.append([key, value])
-            elif isinstance(value, dict):
-                nested_map_location = value
-                self._traverse_stops_data(nested_map_location, entry_data + [key])
-        if not nested_map_location:
-            self._locations.append(list(entry_data))
-
-    def _format_location_entry(self, location):
-        location_data = {}
-        tagless_attributes = ['agency_tag', 'route_tag', 'stop_tag']
-        attribute_index = 0
-        for attribute in location:
-            if type(attribute) is list:
-                attribute_tag = attribute[0]
-                attribute_value = attribute[1]
-                location_data[attribute_tag] = attribute_value
-            else:
-                location_data[tagless_attributes[attribute_index]] = attribute
-                attribute_index += 1
-        self._rename_street_and_stop_id_tags(location_data)
-        lat_lon_coord = (float(location_data['lat']), float(location_data['lon']))
-        formatted_location_entry = [lat_lon_coord, location_data]
-        return formatted_location_entry
-
-    def _rename_street_and_stop_id_tags(self, location_data):
-        location_data['street_title'] = location_data.pop('title')
-        if 'stopId' in location_data:
-            location_data['stop_id'] = location_data.pop('stopId')
 
 class NextBusClient(object):
+    """
+    Send Request to the NextBus API endpoints, send data to  xml_extractor
+    to parse, then return formmated data.
+    """
+
     NEXTBUS_API_ROOT = 'http://webservices.nextbus.com/service/publicXMLFeed'
 
     def __init__(self):
         self.stops = {}
 
     def get_agencies(self):
+        """ Query the NextBus API and get agency tags and agency titles  """
         agencies_xml = self._query_agencies()
         tag_attributes = {'agency' : ['tag', 'title']}
         agency_filter = {'regionTitle' : config.AGENCY_REGION}
@@ -106,6 +30,11 @@ class NextBusClient(object):
         return agencies
 
     def get_routes_for_agencies(self, agencies):
+        """ 
+        For each of the agencies query the NextBus API and collect all
+        the route tags for that agency.
+        """
+
         routes = {}
         agency_tags = agencies.keys()
         tag_attributes = {'route' : ['tag']}
@@ -117,6 +46,7 @@ class NextBusClient(object):
         return routes
 
     def get_stops_for_agencies_routes(self, agencies, routes):
+        """ Return stop data for each route of each agency """
         self.stops = {}
         self._prepare_stops_map(agencies)
         tag_attributes = {'stop' : ['tag', 'title', 'lat', 'lon', 'stopId']}
@@ -212,5 +142,4 @@ class NextBusClient(object):
         xml_extractor.set_parsing_root(parsing_root)
         extracted_data = xml_extractor.extract_values()
         return extracted_data
-
 

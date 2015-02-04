@@ -1,7 +1,10 @@
 from flask import Flask, jsonify, request
 from flask.ext.cors import CORS
-from bust import api_response_creator, bus_datastore, constants
-from bust.api_validation import ArgumentValidation, ValidationError
+
+from bust.web.api_validation import ArgumentValidation, APIValidationError
+from bust.web import api_response_creator
+from bust import bus_datastore, constants
+
 
 app = Flask(__name__)
 cors = CORS(app) # Enable CORS on all routes
@@ -34,6 +37,15 @@ def agency_routes():
     message = response_creator.get_agency_routes(agency_tag)
     return jsonify(message)
 
+@app.route('/api/route-stops')
+def route_stops():
+    required_args = ['atag', 'rtag']
+    agency_tag, route_tag = ArgumentValidation\
+        .validate_and_get_arg_values(request.args, required_args)
+    message = response_creator.get_route_stops(agency_tag, route_tag)
+    return jsonify(message)
+        
+
 @app.errorhandler(404)
 def not_found(error=None):
     message = {
@@ -44,11 +56,15 @@ def not_found(error=None):
     response.status_code = 404
     return response
 
-@app.errorhandler(ValidationError)
+@app.errorhandler(APIValidationError)
 def handle_validation_error(error):
     response = jsonify(error.message_to_dict())
     response.status_code = error.status_code
     return response
+
+def run_app():
+	""" Used to hook commandline start """
+	app.run()
 
 if __name__ == '__main__':
     app.run()

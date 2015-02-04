@@ -1,11 +1,14 @@
 import unittest
-from bust import nextbus_grabber
+
+from bust.components import nextbus_grabber
+from bust.components.nextbus_client import NextBusClient
 from bust.utils import xml_extractor
+
 
 class XMLAttributesValuesExtractorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        nextbus_client = nextbus_grabber.NextBusClient()
+        nextbus_client = NextBusClient()
         cls.test_xml = nextbus_client._query_route_stops('actransit', '51B')
 
     def test_extract_values(self):
@@ -44,12 +47,12 @@ class XMLAttributesValuesExtractorTest(unittest.TestCase):
 class NextBusXMLExtractorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        nextbus_client = nextbus_grabber.NextBusClient()
+        nextbus_client = NextBusClient()
         cls.test_xml = nextbus_client._query_route_stops('actransit', '51B')
 
     def test_get_stop_direction_data(self):
         stop_direction_data = \
-            xml_extractor.NextBusXMLExtractor.get_stop_direction_data(self.test_xml)
+            xml_extractor.NextBusDirectionsExtractor.get_stop_direction_data(self.test_xml)
         self.assertEqual('North', stop_direction_data['0306650']['direction_name'])
         self.assertEqual('To Berkeley Marina', stop_direction_data['0306650']['direction'])
 

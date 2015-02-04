@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bust: Find buses. Fast.</title>
+  <meta name="description" content="Bust finds bus stops near you, and tells you when they'll arrive">
+  <meta name="author" content="Andy Tran">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="static/css/normalize.css">
+  <link rel="stylesheet" href="static/css/skeleton.css">
+  <link rel="stylesheet" href="static/css/custom.css">
+  <link rel="icon" type="static/image/png" href="images/favicon.png">
+  <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
+  <script src="http://underscorejs.org/underscore.js"></script>
+  <script src="http://backbonejs.org/backbone.js"></script>
+  <script type='text/javascript'>
+    window.bust = {}
+  </script>
+  <script type='text/template' id='start-view-template'>
+    <div class='bust-logo'><h1>Bust</h1></div>
+    <div class='row'>
+      <div class='one-half column'>
+        <button class='button-primary find-stops start-view-button'>Find Stops Near You</button>
+      </div>
+      <div class='one-half column'>
+        <button class='button browse-stops start-view-button' id='browse-for-stop-button'>Browse For A Stop</button>
+      </div>
+    </div>
+  </script>
+  <script type='text/template' id='stops-list-column-template'>
+    <div class='one-half column'>
+      <button id=<%= id %> class='button-primary select-stop-button'>
+        <span class='agency'><%= agency_title %></span>
+        <span class='route-tag'><%= route_tag %></span>
+      </button>
+      </br>
+      <span class='direction-name'><%= direction_name %> Route</span> | <span class='direction'><%= direction %></span></br>
+      Located at <span class='street-title'><%= street_title %></span></br>
+      Distance: <%= dist %> miles
+    </div>
+  </script>
+  <script type='text/template' id='predictions-template'>
+    <div class='main-bus-arrivals'><%= main_bus %></div>
+    </br>
+    <div class='other-bus-arrivals'><%= other_bus %></div>
+  </script>
+  <script type='text/template' id = 'predictions-main-bus-template'>
+    <h4> <%= agency_title %> Route <%= route %> </h4>
+    <h4>Located at <%= street_title %></br>Going <%= direction %><h4>
+  </script>
+  <script type='text/template' id = 'predictions-other-bus-template'></script>
+  <script type='text/javascript' src='static/js/model.js'></script>
+  <script type='text/javascript' src='static/js/util.js'></script>
+  <script type='text/javascript' src='static/js/view.js'></script>
+</head>
+<body>
+  <div id="main-container" class="container"></div>
+  <script>
+    bust.previousViews = [];
+    bust.currentView;
+    bust.searchDistance;
+    bust.userPosition = new bust.model.Position();
+    window.onload = function () {
+      bust.startView = new bust.view.StartScreenView({}, {'userPosition' : bust.userPosition});
+      bust.currentView = bust.startView
+      bust.startView.render()
+    }
+  </script>
+</body>
+</html>
