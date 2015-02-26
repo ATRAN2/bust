@@ -1,7 +1,5 @@
 # Bust
 
-**This app was created as a response to the [Uber Coding Challenge](https://github.com/uber/coding-challenge-tools/blob/master/coding_challenge.md)**
-
 The goal of Bust is to have a quick and efficient way to get bus arrival predictions.  When searching through a site like www.nextbus.com, a user needs to dig through a list of agencies, a list of routes, then find the specific stop they're looking for.  Much of that information is extraneous for the user.  Most of the time a user is nearby wondering if they should start walking to the stop or not.  Rather than having to search through huge dropdown lists to find a stop, Bust serves to reduce the hassle by asking for the user's location then returning just the nearby stops.
 
 Implementation
@@ -81,9 +79,13 @@ $ /api/radius-search?lat=<latitude>&lon=<longitude>&distance=<distance_in_miles>
 ```
 Searches and returns information about bus stops around \<latitude\> and \<longitude\>.  \<distance_in_miles\> is an optional parameter that will set the search distance (in miles).  Leaving distance out will do gradually increasing radial searches until at least one stop entry is returned.
 
-Features to Add
+Features to Add / To Do (Priority Highest to Lowest)
 ---
-Given time constraints there were quite a few features that I wanted to add but was not able to.
+##### Frontend Tests
+An automated testing framework needs to be implemented to the frontend before any more new features are to be added.  Considering Jasmine as the framework and Sinon.JS for mocks.
+
+##### Backbone Routers
+The app is currently a single URL and navigation history is handled by a pushstate object.  As app complexity grows it might be a good idea to transition into using backbone.js routers.
 
 ##### Favorite Stops
 The option to favorite stops and save tags locally using Backbone.localStorage would be very useful.  Since a user may tend to use the same bus stop repeatedly if it's part of their routine commute, a means to favorite stops would likely improve their user experience.
@@ -97,17 +99,6 @@ Another feature is an implementation of a map. If a user is searching for a bus,
 ##### A Second Datastore
 Transit 511 also has an API to get bus times and arrivals.  It might be useful to include their data as a fallback or alternative to NextBus.
 
-Experience With the Stack
----
-I've only dabbled a bit with Flask in the past, and have no experience at all with Backbone.js.  I also have very little experience with javascript.  I've done a project with Django however, and that experience transferred laterally a bit.  It made URL routing and setting up a server with uwsgi/nginx a bit easier. It also made me a bit familiar with the MV* paradigm of Backbone.js.  Even so it was mostly uncharted waters and I found myself reading docs quite often.  It was still exciting to work with unfamiliar technologies though and I learned an unbelievable working on this project.  I will most likely keep working on improving it as well as my skills.
-
-## Track
-The track I'll choose for the coding challenge will be for the **Backend**.  I feel more confident in my skills with Python and backend design.  That isn't to say I wouldn't be interested in also working on the frontend.  I had a great time working with Backbone.js during this project, but as I have less experience on that side of development, I feel like I'll have more to offer on the backend.
-
 ## Links
-##### Resume
-http://www.atran.net/static/resume.pdf
-
 ##### Hosted Application w/ API
 http://bust.atran.net
-
